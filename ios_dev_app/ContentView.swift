@@ -1,24 +1,10 @@
-//
-//  ContentView.swift
-//  ios_dev_app
-//
-//  Created by student2 on 2026-06-06.
-//
-
 import SwiftUI
 
-struct ContentView: View {
-    var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+@main
+struct test_appApp: App {
+    var body: some Scene {
+        WindowGroup {
+            ContentView()
         }
-        .padding()
     }
-}
-
-#Preview {
-    ContentView()
 }
