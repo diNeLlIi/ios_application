@@ -30,7 +30,7 @@ struct Light: View {
                     .offset(y: isAnimating ? 0 : 500)
                 
                 Text("Light It Up!")
-                    .font(Font.largeTitle.bold())
+                    .font(.largeTitle.bold())
                     .foregroundColor(.white)
 //                    .opacity(isAnimating ? 1.0 : 0.0)
             }
