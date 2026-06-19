@@ -32,32 +32,33 @@ struct Light: View {
                 Text("Light It Up!")
                     .font(.largeTitle.bold())
                     .foregroundColor(.white)
-//                    .opacity(isAnimating ? 1.0 : 0.0)
+                //                    .opacity(isAnimating ? 1.0 : 0.0)
+
             }
-            .onAppear{
-                withAnimation(.spring(response: 1.0, dampingFraction: 0.8)){
+            // tap gesture to navigate on click
+            .onTapGesture {
+                navigateToNext = true
+            }
+            .onAppear {
+                withAnimation(.spring(response: 1.0, dampingFraction: 0.8)) {
                     isAnimating = true
                 }
             }
-        //navigation to the game
-            .navigationDestination(isPresented: $navigateToNext){
-//                LightLevels()
+            .navigationDestination(isPresented: $navigateToNext) {
+                LightItUpView()
             }
-            
-            //swipe gesture for navigation
             .gesture(
                 DragGesture()
                     .onEnded { value in
-                    if value.translation.width < -50 {
+                        if value.translation.width < -50 {
                             navigateToNext = true
                         }
                     }
             )
         }
-        
-        
     }
 }
+
 
 #Preview {
     Light()

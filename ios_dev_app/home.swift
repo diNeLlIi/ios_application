@@ -47,7 +47,7 @@ struct Home: View {
                         }
                         .buttonStyle(.plain)
 
-                        NavigationLink(destination: LightItUpView()) {
+                        NavigationLink(destination: Light()) {
                             ModeCard(
                                 title: "Light It Up",
                                 subtitle: "Tap the lit card before it goes dark",
