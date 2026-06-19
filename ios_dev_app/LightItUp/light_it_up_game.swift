@@ -41,7 +41,7 @@ struct Light: View {
             }
         //navigation to the game
             .navigationDestination(isPresented: $navigateToNext){
-                LightLevels()
+//                LightLevels()
             }
             
             //swipe gesture for navigation
