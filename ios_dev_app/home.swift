@@ -61,19 +61,19 @@ struct Home: View {
                         .buttonStyle(.plain)
                         
                         //quiz rush
-                        NavigationLink(destination: QuizRushView()) {
-                            ModeCard(
-                                title: "Quiz Rush",
-                                subtitle: "Test your trivia knowledge against the clock",
-                                accentColor: .orange,
-                                best: quizRushBest
-                            )
-                        }
-                        .buttonStyle(.plain)
-                    }
-                    .padding(.horizontal, 24)
-
-                    Spacer()
+//                        NavigationLink(destination: QuizRushView()) {
+//                            ModeCard(
+//                                title: "Quiz Rush",
+//                                subtitle: "Test your trivia knowledge against the clock",
+//                                accentColor: .orange,
+//                                best: quizRushBest
+//                            )
+//                        }
+//                        .buttonStyle(.plain)
+//                    }
+//                    .padding(.horizontal, 24)
+//
+//                    Spacer()
                 }
             }
             .navigationBarHidden(true)
