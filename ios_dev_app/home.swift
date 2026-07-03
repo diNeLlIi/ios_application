@@ -11,6 +11,7 @@ internal import Combine
 struct Home: View {
     @AppStorage("lightItUpHighestScore") private var lightItUpBest = 0
     @AppStorage("tapFrenzyHighScore")    private var tapFrenzyBest  = 0
+    @AppStorage("quizRushHighScore")     private var quizRushBest   = 0 
 
     var body: some View {
         NavigationStack {
@@ -37,6 +38,7 @@ struct Home: View {
 
                     // Game mode buttons
                     VStack(spacing: 16) {
+                        //tap game
                         NavigationLink(destination: ContentView()) {
                             ModeCard(
                                 title: "Tap Frenzy",
@@ -47,12 +49,24 @@ struct Home: View {
                         }
                         .buttonStyle(.plain)
 
+                        //light tile game
                         NavigationLink(destination: Light()) {
                             ModeCard(
                                 title: "Light It Up",
                                 subtitle: "Tap the lit card before it goes dark",
                                 accentColor: .teal,
                                 best: lightItUpBest
+                            )
+                        }
+                        .buttonStyle(.plain)
+                        
+                        //quiz rush
+                        NavigationLink(destination: QuizRushView()) {
+                            ModeCard(
+                                title: "Quiz Rush",
+                                subtitle: "Test your trivia knowledge against the clock",
+                                accentColor: .orange,
+                                best: quizRushBest
                             )
                         }
                         .buttonStyle(.plain)
