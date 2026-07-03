@@ -69,11 +69,11 @@ struct Home: View {
 //                                best: quizRushBest
 //                            )
 //                        }
-//                        .buttonStyle(.plain)
-//                    }
-//                    .padding(.horizontal, 24)
-//
-//                    Spacer()
+                        .buttonStyle(.plain)
+                    }
+                    .padding(.horizontal, 24)
+
+                    Spacer()
                 }
             }
             .navigationBarHidden(true)
