@@ -13,7 +13,7 @@ enum TriviaError: Error {
 }
 
 struct TriviaService {
-    private let url = URL(string: "https://opentdb.com/api.php?amount=10&type=multiple")!
+    private let url = URL(string: "https://opentdb.com/api.php?amount=10&type=multiple&category=17")!
 
     func fetchQuestions() async throws -> [Question] {
         let (data, response) = try await URLSession.shared.data(from: url)
@@ -37,3 +37,4 @@ struct TriviaService {
         }
     }
 }
+
