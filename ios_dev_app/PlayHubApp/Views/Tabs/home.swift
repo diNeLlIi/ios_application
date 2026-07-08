@@ -39,7 +39,7 @@ struct Home: View {
                     // Game mode buttons
                     VStack(spacing: 16) {
                         //tap game
-                        NavigationLink(destination: ContentView()) {
+                        NavigationLink(destination: TapFrenzyView()) {
                             ModeCard(
                                 title: "Tap Frenzy",
                                 subtitle: "Tap as many cards as you can in 60 s",
