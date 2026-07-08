@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum GameMode: String, Codable, CaseIterable {
+enum GameMode: String, Codable, CaseIterable,Hashable {
     case tapFrenzy = "Tap Frenzy"
     case lightItUp = "Light It Up"
     case quizRush = "Quiz Rush"
