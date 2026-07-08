@@ -110,17 +110,123 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "9A2B90CB-E351-4368-B33A-FC6D907663C7"
+            uuid = "EF8FAE9C-E347-4378-A875-528FD0C5CCAF"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "ios_dev_app/PlayHubApp/Extensions/StringHTMLDecode.swift"
+            filePath = "ios_dev_app/PlayHubApp/Views/Shared/ResultsView.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "16"
+            endingLineNumber = "16"
+            landmarkName = "ResultView"
+            landmarkType = "14">
+            <Locations>
+               <Location
+                  uuid = "EF8FAE9C-E347-4378-A875-528FD0C5CCAF - d547ce4f6bd7e052"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "ios_dev_app.ResultView.statsVM.getter : ios_dev_app.StatusGame"
+                  moduleName = "ios_dev_app.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/student2/Desktop/ios_dev_app/ios_dev_app/PlayHubApp/Views/Shared/ResultsView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "0"
+                  endingLineNumber = "0">
+               </Location>
+               <Location
+                  uuid = "EF8FAE9C-E347-4378-A875-528FD0C5CCAF - fd24a3ab2c80a0df"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "ios_dev_app.ResultView.$statsVM.getter : SwiftUI.EnvironmentObject&lt;ios_dev_app.StatusGame&gt;.Wrapper"
+                  moduleName = "ios_dev_app.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/student2/Desktop/ios_dev_app/ios_dev_app/PlayHubApp/Views/Shared/ResultsView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "0"
+                  endingLineNumber = "0">
+               </Location>
+               <Location
+                  uuid = "EF8FAE9C-E347-4378-A875-528FD0C5CCAF - 5f002f350f14d7d3"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "default argument 3 of ios_dev_app.ResultView.init(mode: ios_dev_app.GameMode, score: Swift.Int, action: () -&gt; (), statsVM: SwiftUI.EnvironmentObject&lt;ios_dev_app.StatusGame&gt;, locationService: SwiftUI.EnvironmentObject&lt;ios_dev_app.LocationService&gt;) -&gt; ios_dev_app.ResultView"
+                  moduleName = "ios_dev_app.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/student2/Desktop/ios_dev_app/ios_dev_app/PlayHubApp/Views/Shared/ResultsView.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "0"
+                  endingLineNumber = "0">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "C9DF34FE-8401-46B7-A8DE-BBADFC823B20"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "ios_dev_app/PlayHubApp/Models/StatusGame.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "11"
+            endingLineNumber = "11"
+            landmarkName = "StatusGame"
+            landmarkType = "3">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "7037DDC1-8061-486B-B8E4-E9E995FB02F7"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "ios_dev_app/PlayHubApp/Services/LocationService.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "12"
             endingLineNumber = "12"
-            landmarkName = "htmlDecoded"
-            landmarkType = "24">
+            landmarkName = "LocationService"
+            landmarkType = "3">
+            <Locations>
+               <Location
+                  uuid = "7037DDC1-8061-486B-B8E4-E9E995FB02F7 - f6657da307451cc5"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "ios_dev_app.LocationService.__isolated_deallocating_deinit"
+                  moduleName = "ios_dev_app.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/student2/Desktop/ios_dev_app/ios_dev_app/PlayHubApp/Services/LocationService.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "0"
+                  endingLineNumber = "0">
+               </Location>
+               <Location
+                  uuid = "7037DDC1-8061-486B-B8E4-E9E995FB02F7 - 764ebb061365733a"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "ios_dev_app.LocationService.__deallocating_deinit"
+                  moduleName = "ios_dev_app.debug.dylib"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/student2/Desktop/ios_dev_app/ios_dev_app/PlayHubApp/Services/LocationService.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "0"
+                  endingLineNumber = "0">
+               </Location>
+            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>
