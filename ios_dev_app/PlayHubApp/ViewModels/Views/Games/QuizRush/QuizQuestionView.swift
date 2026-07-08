@@ -8,19 +8,39 @@ struct QuizQuestionView: View {
 
     var body: some View {
         VStack(spacing: 20) {
+
+            // Header row
             HStack {
                 Text("\(viewModel.currentIndex + 1) of \(viewModel.questions.count)")
                     .font(.caption)
                     .foregroundColor(.secondary)
-                
+
                 Spacer()
-                
+
+                HStack(spacing: 4) {
+                    Image(systemName: viewModel.selectedDifficulty.icon)
+                    Text(viewModel.selectedDifficulty.displayName)
+                }
+                .font(.caption.bold())
+                .foregroundColor(viewModel.selectedDifficulty.color)
+
+                Spacer()
+
                 TimerRing(timeRemaining: viewModel.timeRemaining, total: 15.0)
             }
             .padding(.horizontal)
 
             StreakBadge(streak: viewModel.streak)
                 .animation(.spring(), value: viewModel.streak)
+
+            // Question category label
+            Text(question.category)
+                .font(.caption)
+                .foregroundColor(.secondary)
+                .padding(.horizontal, 10)
+                .padding(.vertical, 4)
+                .background(Color(.tertiarySystemBackground))
+                .clipShape(Capsule())
 
             Text(question.question)
                 .font(.title3.bold())
@@ -41,7 +61,7 @@ struct QuizQuestionView: View {
                 .font(.headline)
                 .scaleEffect(scoreScale)
                 .contentTransition(.numericText())
-                .onChange(of: viewModel.score) { _, newValue in
+                .onChange(of: viewModel.score) { _, _ in
                     withAnimation(.spring(response: 0.2, dampingFraction: 0.3)) {
                         scoreScale = 1.3
                     }

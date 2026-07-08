@@ -11,9 +11,11 @@ import UIKit
 internal import Combine
 
 enum QuizState {
+    case setup
     case loading
     case loaded
     case failed
+    case noResults
 }
 
 @MainActor
@@ -22,36 +24,57 @@ final class QuizRushViewModel: ObservableObject {
     @Published var currentIndex = 0
     @Published var score = 0
     @Published var streak = 0
-    @Published var state: QuizState = .loading
+    @Published var state: QuizState = .setup
     @Published var selectedAnswer: String?
     @Published var showResults = false
-    
-    // timer properties
+    @Published var errorMessage: String = ""
+
+    // Timer properties
     @Published var timeRemaining: Double = 15.0
     private let questionDuration: Double = 15.0
     private var timerTask: Task<Void, Never>?
+
+    
+    @Published var selectedCategory: TriviaCategory = .all
+    @Published var selectedDifficulty: QuizDifficulty = .medium
 
     private let service = TriviaService()
 
     var currentQuestion: Question? {
         questions.indices.contains(currentIndex) ? questions[currentIndex] : nil
     }
-    
+
     func load() async {
         state = .loading
         do {
-            questions = try await service.fetchQuestions()
+            questions = try await service.fetchQuestions(
+                category: selectedCategory,
+                difficulty: selectedDifficulty
+            )
             currentIndex = 0
             score = 0
             streak = 0
             showResults = false
             state = .loaded
             startTimer()
+        } catch TriviaError.noResults {
+            errorMessage = TriviaError.noResults.errorDescription ?? ""
+            state = .noResults
+        } catch let error as TriviaError {
+            errorMessage = error.errorDescription ?? "Something went wrong."
+            state = .failed
         } catch {
+            errorMessage = "Something went wrong."
             state = .failed
         }
     }
-    
+
+    func backToSetup() {
+        stopTimer()
+        showResults = false
+        state = .setup
+    }
+
     func submit(answer: String) {
         guard let question = currentQuestion, selectedAnswer == nil else { return }
         stopTimer()
@@ -59,11 +82,12 @@ final class QuizRushViewModel: ObservableObject {
 
         if answer == question.correctAnswer {
             streak += 1
-            score += 10 + (streak >= 3 ? 5 : 0)
+            score += selectedDifficulty.pointsPerCorrect
+                   + (streak >= 3 ? selectedDifficulty.streakBonus : 0)
             triggerHaptic(correct: true)
         } else {
             streak = 0
-            score = max(0, score - 2)
+            score = max(0, score - selectedDifficulty.penalty)
             triggerHaptic(correct: false)
         }
 
@@ -72,7 +96,7 @@ final class QuizRushViewModel: ObservableObject {
             advance()
         }
     }
-    
+
     private func advance() {
         selectedAnswer = nil
         withAnimation(.easeInOut(duration: 0.35)) {
@@ -80,12 +104,12 @@ final class QuizRushViewModel: ObservableObject {
                 currentIndex += 1
                 startTimer()
             } else {
+                stopTimer()
                 showResults = true
             }
         }
     }
-    
-    //timer setting
+
     func startTimer() {
         timerTask?.cancel()
         timeRemaining = questionDuration
@@ -110,7 +134,7 @@ final class QuizRushViewModel: ObservableObject {
     private func timeExpired() {
         guard selectedAnswer == nil else { return }
         streak = 0
-        score = max(0, score - 2)
+        score = max(0, score - selectedDifficulty.penalty) 
         selectedAnswer = "__timeout__"
         triggerHaptic(correct: false)
 
@@ -119,9 +143,10 @@ final class QuizRushViewModel: ObservableObject {
             advance()
         }
     }
-    
+
     private func triggerHaptic(correct: Bool) {
         let generator = UIImpactFeedbackGenerator(style: correct ? .light : .heavy)
         generator.impactOccurred()
     }
 }
+

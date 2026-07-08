@@ -8,11 +8,11 @@
 import Foundation
 
 struct TriviaCategory: Identifiable, Hashable {
-    let id: Int        // matches Open Trivia DB category IDs
+    // id matches the trivia DB categegory IDs
+    let id: Int
     let name: String
-    let icon: String   // SF Symbol name
+    let icon: String
 
-    // id = 0 means "don't filter — any category"
     static let all = TriviaCategory(id: 0, name: "Any Category", icon: "square.grid.2x2.fill")
 
     static let categories: [TriviaCategory] = [
