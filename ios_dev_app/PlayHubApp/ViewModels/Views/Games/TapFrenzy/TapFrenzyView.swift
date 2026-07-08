@@ -1,29 +1,22 @@
 //
-//  ios_dev_appApp.swift
+//  TapFrenzyView.swift
 //  ios_dev_app
 //
-//  Created by student2 on 2026-06-06.
+//  Created by student2 on 2026-07-08.
 //
 
 import SwiftUI
 internal import Combine
 
-
-struct ContentView: View {
-    @State private var tapCount: Int = 0
-    @State private var timeRemaining: Int = 10
-    @State private var isGameActive: Bool = false
-    @State private var isGameOver: Bool = false
-    @State private var circleScale: CGFloat = 1.0
-    @State private var showAlert: Bool = false
-
-    let timeLimit: Int = 10
-
-    let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
+struct TapFrenzyView: View {
+    @StateObject private var vm = TapFrenzyVM()
+    let timer = Timer.publish(every: 1, on: .main, in: .common)
+        .autoconnect()
+        .receive(on: RunLoop.main)
 
     var body: some View {
         ZStack {
-            //background image
+            // background image
             Image("background-wood-cartoon")
                 .resizable()
                 .scaledToFill()
@@ -55,7 +48,7 @@ struct ContentView: View {
                             .fontWeight(.semibold)
                             .foregroundColor(.brown)
                             .tracking(2)
-                        Text("\(tapCount)")
+                        Text("\(vm.tapCount)")
                             .font(.system(size: 44, weight: .bold, design: .rounded))
                             .foregroundColor(.black)
                     }
@@ -64,33 +57,31 @@ struct ContentView: View {
 
                 Spacer()
 
-                //tap button
-                Button(action: handleTap) {
+                // Tap button
+                Button(action: vm.handleTap) {
                     ZStack {
                         Circle()
                             .stroke(Color.black, lineWidth: 4)
                             .frame(width: 200, height: 200)
 
                         Circle()
-                            .fill(isGameActive
-                                  ? Color.orange.opacity(0.9)
-                                  : Color.white.opacity(0.6))
+                            .fill(vm.isGameActive ? Color.orange.opacity(0.9) : Color.white.opacity(0.6))
                             .frame(width: 190, height: 190)
 
                         VStack(spacing: 6) {
                             Image(systemName: "hand.tap.fill")
                                 .font(.system(size: 40))
-                                .foregroundColor(isGameActive ? .white : .gray)
+                                .foregroundColor(vm.isGameActive ? .white : .gray)
                             Text("TAP")
                                 .font(.title2)
                                 .fontWeight(.bold)
-                                .foregroundColor(isGameActive ? .white : .gray)
+                                .foregroundColor(vm.isGameActive ? .white : .gray)
                         }
                     }
                 }
-                .scaleEffect(circleScale)
-                .disabled(!isGameActive)
-                .animation(.spring(response: 0.15, dampingFraction: 0.5), value: circleScale)
+                .scaleEffect(vm.circleScale)
+                .disabled(!vm.isGameActive)
+                .animation(.spring(response: 0.15, dampingFraction: 0.5), value: vm.circleScale)
 
                 Spacer()
 
@@ -110,77 +101,52 @@ struct ContentView: View {
                             .fontWeight(.semibold)
                             .foregroundColor(.brown)
                             .tracking(2)
-                        Text("\(timeRemaining)s")
+                        Text("\(vm.timeRemaining)s")
                             .font(.system(size: 44, weight: .bold, design: .rounded))
                             .foregroundColor(
-                                timeRemaining <= 3 && isGameActive ? .red : .black
+                                vm.timeRemaining <= 3 && vm.isGameActive ? .red : .black
                             )
                     }
                 }
                 .padding(.top, 10)
 
-                Button(action: isGameOver ? resetGame : startGame) {
-                    Text(isGameOver ? "Play Again" : (isGameActive ? "Running..." : "Start"))
+                // Start/Restart Button
+                Button(action: vm.isGameOver ? vm.resetGame : vm.startGame) {
+                    Text(vm.isGameOver ? "Play Again" : (vm.isGameActive ? "Running..." : "Start"))
                         .font(.headline)
                         .foregroundColor(.white)
                         .frame(width: 160, height: 44)
                         .background(
                             RoundedRectangle(cornerRadius: 22)
-                                .fill(isGameActive ? Color.gray.opacity(0.6) : Color.brown)
+                                .fill(vm.isGameActive ? Color.gray.opacity(0.6) : Color.brown)
                         )
                 }
-                .disabled(isGameActive)
+                .disabled(vm.isGameActive)
                 .padding(.top, 20)
                 .padding(.bottom, 50)
             }
         }
-
         .onReceive(timer) { _ in
-            guard isGameActive else { return }
-            if timeRemaining > 0 {
-                timeRemaining -= 1
+            if Thread.isMainThread {
+                vm.timerTick()
             } else {
-                isGameActive = false
-                isGameOver = true
-                showAlert = true
+                DispatchQueue.main.async {
+                    vm.timerTick()
+                }
             }
         }
-
-        .alert("Game Over!", isPresented: $showAlert) {
+        .onDisappear {
+        }
+        .alert("Game Over!", isPresented: $vm.showAlert) {
             Button("OK") {
-                resetGame()
+                vm.resetGame()
             }
         } message: {
-            Text("You tapped \(tapCount) time\(tapCount == 1 ? "" : "s") in \(timeLimit) seconds!")
+            Text("You tapped \(vm.tapCount) time\(vm.tapCount == 1 ? "" : "s") in \(vm.timeLimit) seconds!")
         }
-    }
-
-    private func handleTap() {
-        tapCount += 1
-        circleScale = 0.88
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.08) {
-            circleScale = 1.0
-        }
-    }
-
-    private func startGame() {
-        tapCount = 0
-        timeRemaining = timeLimit
-        isGameOver = false
-        isGameActive = true
-    }
-
-    private func resetGame() {
-        isGameActive = false
-        isGameOver = false
-        tapCount = 0
-        timeRemaining = timeLimit
-        showAlert = false
-        circleScale = 1.0
     }
 }
 
-
 #Preview {
-    ContentView()
+    TapFrenzyView()
 }
