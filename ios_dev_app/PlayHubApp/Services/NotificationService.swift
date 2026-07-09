@@ -24,7 +24,7 @@ class NotificationService {
         
         let content = UNMutableNotificationContent()
         content.title = "Daily Challenge! 🎮"
-        content.body = "It's time to beat your high score. Open PlayHub now!"
+        content.body = "It's time have some fun. Open PlayHub now!"
         content.sound = .default
         
         let components = Calendar.current.dateComponents([.hour, .minute], from: date)
