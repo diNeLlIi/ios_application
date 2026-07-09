@@ -7,9 +7,13 @@
 
 import SwiftUI
 internal import Combine
+import _LocationEssentials
 
 struct TapFrenzyView: View {
     @StateObject private var vm = TapFrenzyVM()
+    @EnvironmentObject var statViewModel: StatusGame
+    @EnvironmentObject var locationService: LocationService
+    
     let timer = Timer.publish(every: 1, on: .main, in: .common)
         .autoconnect()
         .receive(on: RunLoop.main)
@@ -135,8 +139,17 @@ struct TapFrenzyView: View {
                 }
             }
         }
-        .onDisappear {
-        }
+        .onChange(of: vm.isGameOver) { _, isOver in
+                    guard isOver else { return }
+                    let coord = locationService.currentLocation
+                    statViewModel.saveSession(
+                        mode: .tapFrenzy,
+                        score: vm.tapCount,
+                        lat: coord?.latitude ?? 0,
+                        lng: coord?.longitude ?? 0
+                    )
+                }
+        
         .alert("Game Over!", isPresented: $vm.showAlert) {
             Button("OK") {
                 vm.resetGame()

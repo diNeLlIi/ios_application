@@ -4,7 +4,6 @@ import SwiftUI
 struct PlayHubApp: App {
     @StateObject private var statViewModel = StatusGame()
     @StateObject private var locationService = LocationService()
-
     init() {
         NotificationService.shared.requestPermission()
     }

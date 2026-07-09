@@ -4,10 +4,13 @@
 //
 
 import SwiftUI
+import _LocationEssentials
 
 struct QuizRushView: View {
     @StateObject private var viewModel = QuizRushViewModel()
-
+    @EnvironmentObject var statsVM: StatusGame
+    @EnvironmentObject var locationService: LocationService
+    
     var body: some View {
         ZStack {
             QuizBackground(
@@ -91,28 +94,55 @@ struct QuizRushView: View {
                 }
             }
         }
+        .onChange(of: viewModel.showResults) { _, isShowing in
+            guard isShowing else { return }
+            saveCompletedSession()
+        }
     }
-}
-
-struct QuizBackground: View {
-    let streak: Int
-    let timeRemaining: Double
-
-    var body: some View {
-        LinearGradient(colors: [topColor, bottomColor], startPoint: .top, endPoint: .bottom)
-            .animation(.easeInOut(duration: 0.6), value: streak)
-            .animation(.easeInOut(duration: 0.3), value: timeRemaining < 5)
+    
+    private func saveCompletedSession() {
+        if let coord = locationService.currentLocation {
+            statsVM.saveSession(
+                mode: .quizRush,
+                score: viewModel.score,
+                lat: coord.latitude,
+                lng: coord.longitude
+            )
+            return
+        }
+        
+        Task {
+            try? await Task.sleep(nanoseconds: 1_000_000_000)
+            let coord = locationService.currentLocation
+            statsVM.saveSession(
+                mode: .quizRush,
+                score: viewModel.score,
+                lat: coord?.latitude ?? 0,
+                lng: coord?.longitude ?? 0
+            )
+        }
     }
-
-    private var topColor: Color {
-        if timeRemaining < 5 { return .red.opacity(0.3) }
-        if streak >= 3       { return .orange.opacity(0.2) }
-        return Color(.systemBackground)
-    }
-
-    private var bottomColor: Color {
-        if timeRemaining < 5 { return Color(.systemBackground) }
-        if streak >= 3       { return .yellow.opacity(0.1) }
-        return Color(.secondarySystemBackground)
+    
+    struct QuizBackground: View {
+        let streak: Int
+        let timeRemaining: Double
+        
+        var body: some View {
+            LinearGradient(colors: [topColor, bottomColor], startPoint: .top, endPoint: .bottom)
+                .animation(.easeInOut(duration: 0.6), value: streak)
+                .animation(.easeInOut(duration: 0.3), value: timeRemaining < 5)
+        }
+        
+        private var topColor: Color {
+            if timeRemaining < 5 { return .red.opacity(0.3) }
+            if streak >= 3       { return .orange.opacity(0.2) }
+            return Color(.systemBackground)
+        }
+        
+        private var bottomColor: Color {
+            if timeRemaining < 5 { return Color(.systemBackground) }
+            if streak >= 3       { return .yellow.opacity(0.1) }
+            return Color(.secondarySystemBackground)
+        }
     }
 }

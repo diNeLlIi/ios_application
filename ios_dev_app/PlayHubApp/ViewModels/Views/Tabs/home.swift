@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-internal import Combine
 
 struct HomeTab: View {
     // highest score from ViewModels
@@ -100,15 +99,15 @@ struct ModeCard: View {
                     .lineLimit(2)
             }
             Spacer()
-            VStack(alignment: .trailing, spacing: 2) {
-                Text("BEST")
-                    .font(.system(size: 10, weight: .semibold))
-                    .tracking(1.5)
-                    .foregroundColor(accentColor)
-                Text("\(best)")
-                    .font(.system(size: 24, weight: .black, design: .rounded))
-                    .foregroundColor(.white)
-            }
+//            VStack(alignment: .trailing, spacing: 2) {
+//                Text("BEST")
+//                    .font(.system(size: 10, weight: .semibold))
+//                    .tracking(1.5)
+//                    .foregroundColor(accentColor)
+//                Text("\(best)")
+//                    .font(.system(size: 24, weight: .black, design: .rounded))
+//                    .foregroundColor(.white)
+//            }
         }
         .padding(20)
         .background(

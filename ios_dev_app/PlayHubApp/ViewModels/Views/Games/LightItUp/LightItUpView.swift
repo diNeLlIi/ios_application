@@ -7,6 +7,8 @@
 
 import SwiftUI
 internal import Combine
+import CoreLocation
+
 
 struct Light: View {
     @State private var isAnimating = false
@@ -59,6 +61,12 @@ struct Light: View {
 
 struct LightItUpView: View {
     @StateObject private var vm = LightItUpVM()
+    @EnvironmentObject var statViewModel: StatusGame
+    @EnvironmentObject var locationService: LocationService
+    
+    //dusmiss on custom back button
+    @Environment(\.dismiss) private var dismiss
+    
     let gameTimer = Timer.publish(every: 0.1, on: .main, in: .common).autoconnect()
 
     var body: some View {
@@ -66,7 +74,18 @@ struct LightItUpView: View {
             Color.black.ignoresSafeArea()
 
             VStack {
-                // Header dashboard
+                HStack {
+                    Button(action: { dismiss() }) {
+                        Image(systemName: "chevron.left")
+                            .font(.title2.bold())
+                            .foregroundColor(.white)
+                            .padding(.leading)
+                            .padding(.top, 10)
+                    }
+                    Spacer()
+                }
+                
+                // header dashboard
                 HStack {
                     VStack(alignment: .leading) {
                         Text("Score: \(vm.score)")
@@ -85,7 +104,7 @@ struct LightItUpView: View {
                         }
                     }
                 }
-                .padding()
+                .padding(.horizontal)
 
                 HStack {
                     Text(vm.currentLevel.levelName)
@@ -119,7 +138,9 @@ struct LightItUpView: View {
                         }
                     }
                     .padding(30)
-                    .transition(.opacity)
+                    .transition(.scale.combined(with: .opacity))
+                    .animation(.spring(response: 0.4, dampingFraction: 0.8), value: vm.currentLevel)
+                    .animation(.spring(response: 0.4, dampingFraction: 0.8), value: vm.cards.count)
 
                 } else {
                     VStack(spacing: 20) {
@@ -156,6 +177,16 @@ struct LightItUpView: View {
         .navigationBarHidden(true)
         .onReceive(gameTimer) { _ in
             vm.runTickLoop()
+        }
+        .onChange(of: vm.isGameOver) { _, isOver in
+            guard isOver else { return }
+            let coord = locationService.currentLocation
+            statViewModel.saveSession(
+                mode: .lightItUp,
+                score: vm.score,
+                lat: coord?.latitude ?? 0,
+                lng: coord?.longitude ?? 0
+            )
         }
     }
 }
