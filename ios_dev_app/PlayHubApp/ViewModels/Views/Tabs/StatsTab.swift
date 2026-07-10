@@ -68,15 +68,15 @@ struct StatsTab: View {
             }
             .listStyle(.insetGrouped)
             .navigationTitle("Stats")
-            .toolbar {
-                if !statViewModel.sessions.isEmpty {
-                    ToolbarItem(placement: .navigationBarTrailing) {
-                        Button("Clear All", role: .destructive) {
-                            statViewModel.clearStats()
-                        }
-                    }
-                }
-            }
+//            .toolbar {
+//                if !statViewModel.sessions.isEmpty {
+//                    ToolbarItem(placement: .navigationBarTrailing) {
+//                        Button("Clear All", role: .destructive) {
+//                            statViewModel.clearStats()
+//                        }
+//                    }
+//                }
+//            }
         }
     }
 

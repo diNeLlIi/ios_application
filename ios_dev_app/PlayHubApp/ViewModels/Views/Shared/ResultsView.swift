@@ -11,7 +11,7 @@ import _LocationEssentials
 struct ResultView: View {
     let mode: GameMode
     let score: Int
-    let action: () -> Void // Closure to pop back to home
+    let action: () -> Void 
     
     @EnvironmentObject var statsVM: StatusGame
     @EnvironmentObject var locationService: LocationService
@@ -47,12 +47,14 @@ struct ResultView: View {
         .padding()
         .onAppear {
             if !hasSaved {
-                // Save the session using current location
+                
+                //saving the session details using  current location
                 let lat = locationService.currentLocation?.latitude ?? 0.0
                 let lng = locationService.currentLocation?.longitude ?? 0.0
                 statsVM.saveSession(mode: mode, score: score, lat: lat, lng: lng)
                 hasSaved = true
             }
+            
         }
         .navigationBarBackButtonHidden(true)
     }
