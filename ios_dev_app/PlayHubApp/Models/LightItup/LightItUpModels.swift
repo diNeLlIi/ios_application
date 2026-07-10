@@ -70,4 +70,41 @@ enum GameLevel: Int, CaseIterable {
         case .level4: return "Level 4"
         }
     }
+    
+    var nextLevel: GameLevel? {
+        switch self {
+        case .level1: return .level2
+        case .level2: return .level3
+        case .level3: return .level4
+        case .level4: return nil
+        }
+    }
+    
+    var duration: Double {
+        return 15.0
+    }
+
+    //score based on levels
+    var pointsPerTap: Int {
+        switch self {
+        case .level1: return 1
+        case .level2: return 2
+        case .level3: return 3
+        case .level4: return 4
+        }
+    }
+    
+    //score threshold
+    var unlockThreshold: Int {
+        switch self {
+        case .level1: return 5
+        case .level2: return 10
+        case .level3: return 15
+        case .level4: return 0
+        }
+    }
+    
+    var highscoreStorageKey: String {
+        return "lightItUp_highscore_level_\(self.rawValue)"
+    }
 }

@@ -9,77 +9,94 @@ import SwiftUI
 internal import Combine
 
 class LightItUpVM: ObservableObject {
-    @AppStorage("lightItUpHighestScore") var highestScore = 0
-    @AppStorage("lightItUpRoundLength") var roundLength: Double = 60
-
     @Published var cards: [LitCard] = []
     @Published var score = 0
     @Published var lives = 3
     @Published var currentLevel: GameLevel = .level1
-
+    @Published var currentLevelHighScore = 0
     @Published var elapsedTime: Double = 0
     @Published var timeSinceLastCycle: Double = 0
-    @Published var isGameOver: Bool = false
     @Published var isGameActive: Bool = false
-
+    @Published var showPopup: Bool = false
+    @Published var levelWon: Bool = false
     @Published var displayLevel = false
     @Published var flashColor: Color = Color(red: 0.0, green: 0.1, blue: 0.4)
 
-    var quarterDuration: Double { roundLength / 4.0 }
+    private var timerCancellable: AnyCancellable?
     
-    func startGame() {
+    func startLevel(_ level: GameLevel) {
+        currentLevel = level
         score = 0
         lives = 3
         elapsedTime = 0
         timeSinceLastCycle = 0
-        isGameOver = false
+        
+        showPopup = false
+        levelWon = false
+        
+        currentLevelHighScore = UserDefaults.standard.integer(forKey: level.highscoreStorageKey)
+        
+        buildGrid(for: level)
+        showLevelFlash()
+        
         isGameActive = true
-        currentLevel = .level1
-        buildGrid(for: .level1)
+        startTimer()
+    }
+    
+    private func startTimer() {
+        stopTimer()
+        timerCancellable = Timer.publish(every: 0.1, on: .main, in: .common)
+            .autoconnect()
+            .sink { [weak self] _ in
+                self?.runTickLoop()
+            }
+    }
+    
+    private func stopTimer() {
+        timerCancellable?.cancel()
+        timerCancellable = nil
     }
     
     func handleTap(on card: LitCard) {
-        guard isGameActive, !isGameOver else { return }
+        guard isGameActive else { return }
         guard let idx = cards.firstIndex(where: { $0.id == card.id }) else { return }
 
         if cards[idx].isLit {
             withAnimation(.easeOut(duration: 0.15)) { cards[idx].isLit = false }
-            score += 10
-            if score > highestScore { highestScore = score }
+            
+            // Scaled dynamic scoring
+            score += currentLevel.pointsPerTap
+            
+            if score > currentLevelHighScore {
+                currentLevelHighScore = score
+                UserDefaults.standard.set(score, forKey: currentLevel.highscoreStorageKey)
+            }
         } else {
             deductLife()
         }
     }
 
     func runTickLoop() {
+        guard isGameActive else { return }
+        
         elapsedTime += 0.1
         timeSinceLastCycle += 0.1
-
-        let newLevel: GameLevel
-        if elapsedTime < quarterDuration { newLevel = .level1 }
-        else if elapsedTime < quarterDuration * 2 { newLevel = .level2 }
-        else if elapsedTime < quarterDuration * 3 { newLevel = .level3 }
-        else { newLevel = .level4 }
-
-        if newLevel != currentLevel {
-            currentLevel = newLevel
-            timeSinceLastCycle = 0
-            buildGrid(for: newLevel)
-            showLevelFlash()
-        }
 
         if timeSinceLastCycle >= currentLevel.litTime {
             timeSinceLastCycle = 0
             cycleLitCards()
         }
 
-        if elapsedTime >= roundLength { endGame() }
+        if elapsedTime >= currentLevel.duration {
+            let won = score >= currentLevel.unlockThreshold
+            endLevel(won: won)
+        }
     }
 
     func cycleLitCards() {
         for card in cards where card.isLit {
             deductLife()
-            if isGameOver { return }
+            if !isGameActive { return }
         }
         
         withAnimation(.easeIn(duration: 0.1)) {
@@ -102,14 +119,25 @@ class LightItUpVM: ObservableObject {
 
     func deductLife() {
         lives -= 1
-        if lives <= 0 { endGame() }
+        if lives <= 0 { endLevel(won: false) }
     }
 
-    func endGame() {
-        for i in cards.indices { cards[i].isLit = false }
+    func endLevel(won: Bool) {
+        stopTimer()
         isGameActive = false
-        isGameOver = true
-        if score > highestScore { highestScore = score }
+        levelWon = won
+        
+        for i in cards.indices { cards[i].isLit = false }
+        
+        if score > currentLevelHighScore {
+            UserDefaults.standard.set(score, forKey: currentLevel.highscoreStorageKey)
+        }
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            withAnimation(.spring(response: 0.4, dampingFraction: 0.75)) {
+                self.showPopup = true
+            }
+        }
     }
 
     func showLevelFlash() {
