@@ -168,7 +168,7 @@ private struct LocationDetailSheet: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             header
-            modeFilter
+            //modeFilter
             statChips
             Divider()
             historyList
