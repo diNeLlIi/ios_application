@@ -10,6 +10,9 @@ struct StatsTab: View {
     @EnvironmentObject var statViewModel: StatusGame
     @State private var selectedMode: GameMode = .tapFrenzy
 
+    private let historyRowHeight: CGFloat = 64
+    private let visibleBarCount: CGFloat = 10
+
     private var filteredSessions: [GameSession] {
         statViewModel.sessions
             .filter { $0.mode == selectedMode }
@@ -59,12 +62,18 @@ struct StatsTab: View {
                             .foregroundColor(.gray)
                             .padding(.vertical)
                     } else {
-                        ForEach(filteredSessions) { session in
-                            historyRow(session)
+                        List {
+                            ForEach(filteredSessions) { session in
+                                historyRow(session)
+                            }
+                            .onDelete(perform: deleteSessions)
                         }
-                        .onDelete(perform: deleteSessions)
+                        .listStyle(.plain)
+                        .scrollContentBackground(.hidden)
+                        .frame(height: historyRowHeight * 5)
                     }
                 }
+                .listRowInsets(EdgeInsets())
             }
             .listStyle(.insetGrouped)
             .navigationTitle("Stats")
@@ -137,7 +146,7 @@ struct StatsTab: View {
 
     private var progressCard: some View {
         VStack(alignment: .leading, spacing: 14) {
-            modePickerPills
+         //   modePickerPills
 
             HStack(alignment: .lastTextBaseline) {
                 VStack(alignment: .leading, spacing: 2) {
@@ -166,22 +175,31 @@ struct StatsTab: View {
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 30)
             } else {
-                Chart {
-                    ForEach(Array(chartSessions.enumerated()), id: \.element.id) { index, session in
-                        BarMark(
-                            x: .value("Session", "G\(index + 1)"),
-                            y: .value("Score", session.score)
-                        )
-                        .foregroundStyle(
-                            session.score == bestScore(for: selectedMode)
-                                ? colorForMode(selectedMode)
-                                : colorForMode(selectedMode).opacity(0.35)
-                        )
-                        .cornerRadius(6)
+           
+                GeometryReader { geo in
+                    let barWidth = geo.size.width / visibleBarCount
+                    let chartWidth = max(barWidth * CGFloat(chartSessions.count), geo.size.width)
+
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        Chart {
+                            ForEach(Array(chartSessions.enumerated()), id: \.element.id) { index, session in
+                                BarMark(
+                                    x: .value("Session", "G\(index + 1)"),
+                                    y: .value("Score", session.score)
+                                )
+                                .foregroundStyle(
+                                    session.score == bestScore(for: selectedMode)
+                                        ? colorForMode(selectedMode)
+                                        : colorForMode(selectedMode).opacity(0.35)
+                                )
+                                .cornerRadius(6)
+                            }
+                        }
+                        .frame(width: chartWidth)
+                        .chartYAxis(.hidden)
                     }
                 }
                 .frame(height: 140)
-                .chartYAxis(.hidden)
             }
         }
         .padding(16)
