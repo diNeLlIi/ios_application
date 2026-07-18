@@ -156,6 +156,8 @@ struct LightItUpGameplayView: View {
 let selectedLevel: GameLevel
 @StateObject private var vm = LightItUpVM()
 @Environment(\.dismiss) private var dismiss
+@EnvironmentObject var statusGame: StatusGame
+@EnvironmentObject var locationService: LocationService
 
 var body: some View {
     ZStack {
@@ -203,6 +205,11 @@ var body: some View {
                 Text("Target: \(vm.currentLevel.unlockThreshold) pts")
                     .font(.subheadline)
                     .foregroundColor(.white.opacity(0.6))
+                TimerRing(
+                    timeRemaining: max(0, vm.currentLevel.duration - vm.elapsedTime),
+                    total: vm.currentLevel.duration
+                )
+                .padding(.leading, 10)
             }
             .padding(.horizontal)
             
@@ -350,6 +357,16 @@ var body: some View {
     .navigationBarBackButtonHidden(true)
     .onAppear {
         vm.startLevel(selectedLevel)
+    }
+    .onChange(of: vm.showPopup) { _, isShowing in
+        guard isShowing else { return }
+        let coord = locationService.currentLocation
+        statusGame.saveSession(
+            mode: .lightItUp,
+            score: vm.score,
+            lat: coord?.latitude ?? 0,
+            lng: coord?.longitude ?? 0
+        )
     }
 }
 }
