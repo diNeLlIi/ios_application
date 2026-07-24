@@ -44,5 +44,10 @@ class StatusGame: ObservableObject {
             UserDefaults.standard.set(encoded, forKey: saveKey)
         }
     }
+    
+    func clearSessions(for mode: GameMode) {
+            sessions.removeAll { $0.mode == mode }
+            persist()
+        }
 }
 

@@ -37,10 +37,10 @@ enum GameLevel: Int, CaseIterable {
 
     var litTime: Double {
         switch self {
-        case .level1: return 1.5
-        case .level2: return 1.2
-        case .level3: return 1.0
-        case .level4: return 0.8
+        case .level1: return 1.6
+        case .level2: return 1.3
+        case .level3: return 1.05
+        case .level4: return 0.85
         }
     }
 
@@ -80,21 +80,10 @@ enum GameLevel: Int, CaseIterable {
         }
     }
     
-    var duration: Double {
-        return 15.0
-    }
-
-    //score based on levels
-    var pointsPerTap: Int {
-        switch self {
-        case .level1: return 1
-        case .level2: return 2
-        case .level3: return 3
-        case .level4: return 4
-        }
-    }
+    var duration: Double { 20.0 }
     
-    //score threshold
+    var pointsPerTap: Int { 1 }
+    
     var unlockThreshold: Int {
         switch self {
         case .level1: return 5
@@ -102,6 +91,10 @@ enum GameLevel: Int, CaseIterable {
         case .level3: return 15
         case .level4: return 0
         }
+    }
+       
+    var progressTarget: Int {
+        unlockThreshold > 0 ? unlockThreshold : 20
     }
     
     var highscoreStorageKey: String {

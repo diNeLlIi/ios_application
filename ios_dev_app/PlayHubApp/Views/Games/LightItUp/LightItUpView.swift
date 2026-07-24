@@ -150,6 +150,46 @@ struct LightItUpLevelsView: View {
 }
 
 
+struct LevelProgressBar: View {
+    let current: Int
+    let target: Int
+    let color: Color
+    let subtitle: String
+    
+    private var fraction: Double {
+        guard target > 0 else { return 0 }
+        return min(Double(current) / Double(target), 1.0)
+    }
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 5) {
+            GeometryReader { geo in
+                ZStack(alignment: .leading) {
+                    Capsule()
+                        .fill(Color.white.opacity(0.1))
+                    
+                    Capsule()
+                        .fill(
+                            LinearGradient(
+                                colors: [color, color.opacity(0.6)],
+                                startPoint: .leading, endPoint: .trailing
+                            )
+                        )
+                        .frame(width: geo.size.width * CGFloat(fraction))
+                        .shadow(color: color.opacity(0.6), radius: 5)
+                        .animation(.easeOut(duration: 0.2), value: fraction)
+                }
+            }
+            .frame(height: 10)
+            
+            Text(subtitle)
+                .font(.system(size: 11, weight: .semibold, design: .rounded))
+                .foregroundColor(.white.opacity(0.55))
+        }
+    }
+}
+
+
 //countdown
 
 struct LightItUpGameplayView: View {
@@ -158,6 +198,33 @@ let selectedLevel: GameLevel
 @Environment(\.dismiss) private var dismiss
 @EnvironmentObject var statusGame: StatusGame
 @EnvironmentObject var locationService: LocationService
+
+private var progressSubtitle: String {
+    let target = vm.currentLevel.progressTarget
+    if vm.currentLevel.unlockThreshold > 0 {
+        return "\(vm.score) / \(target) taps to clear"
+    } else {
+        return "\(vm.score) / \(target) taps · final level"
+    }
+}
+
+private var popupTitle: String {
+    if vm.levelWon {
+        return vm.currentLevel.nextLevel == nil ? "You Beat It!" : "Level Completed!"
+    } else {
+        return "So Close!"
+    }
+}
+
+//private var popupSubtitle: String {
+//    if vm.levelWon {
+//        return vm.currentLevel.nextLevel == nil
+//            ? "You've conquered the final level. Legendary reflexes."
+//            : "Nice reflexes — you're ready for the next challenge."
+//    } else {
+//        return "You needed \(vm.currentLevel.progressTarget) taps to clear this level."
+//    }
+//}
 
 var body: some View {
     ZStack {
@@ -176,15 +243,11 @@ var body: some View {
             }
             .padding(.top, 10)
             
-            HStack {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Score: \(vm.score)")
-                        .font(.system(.title, design: .rounded).bold())
-                        .foregroundColor(.white)
-                    Text("High Score: \(vm.currentLevelHighScore)")
-                        .font(.subheadline.bold())
-                        .foregroundColor(.white.opacity(0.5))
-                }
+
+            HStack(alignment: .center) {
+                Text(vm.currentLevel.levelName)
+                    .font(.system(.title, design: .rounded).bold())
+                    .foregroundColor(vm.currentLevel.glowColor)
                 Spacer()
                 HStack(spacing: 6) {
                     ForEach(0..<3) { index in
@@ -197,19 +260,18 @@ var body: some View {
             }
             .padding(.horizontal)
             
-            HStack {
-                Text(vm.currentLevel.levelName)
-                    .font(.headline)
-                    .foregroundColor(vm.currentLevel.glowColor)
-                Spacer()
-                Text("Target: \(vm.currentLevel.unlockThreshold) pts")
-                    .font(.subheadline)
-                    .foregroundColor(.white.opacity(0.6))
+            
+            HStack(spacing: 12) {
+                LevelProgressBar(
+                    current: vm.score,
+                    target: vm.currentLevel.progressTarget,
+                    color: vm.currentLevel.glowColor,
+                    subtitle: progressSubtitle
+                )
                 TimerRing(
                     timeRemaining: max(0, vm.currentLevel.duration - vm.elapsedTime),
                     total: vm.currentLevel.duration
                 )
-                .padding(.leading, 10)
             }
             .padding(.horizontal)
             
@@ -276,82 +338,144 @@ var body: some View {
         }
         
         if vm.showPopup {
-            Color.black.opacity(0.65).ignoresSafeArea()
+            Color.black.opacity(0.7).ignoresSafeArea()
+                .transition(.opacity)
             
-            VStack(spacing: 24) {
-                VStack(spacing: 8) {
-                    Image(systemName: vm.levelWon ? "trophy.fill" : "exclamationmark.triangle.fill")
-                        .font(.system(size: 42))
+            VStack(spacing: 22) {
+                ZStack {
+                    Circle()
+                        .fill(
+                            RadialGradient(
+                                colors: [
+                                    (vm.levelWon ? Color.yellow : Color.orange).opacity(0.35),
+                                    .clear
+                                ],
+                                center: .center, startRadius: 0, endRadius: 70
+                            )
+                        )
+                        .frame(width: 120, height: 120)
+                    
+                    Circle()
+                        .fill(Color.white.opacity(0.08))
+                        .frame(width: 84, height: 84)
+                        .overlay(
+                            Circle().stroke(
+                                (vm.levelWon ? Color.yellow : Color.orange).opacity(0.5),
+                                lineWidth: 1.5
+                            )
+                        )
+                    
+                    Image(systemName: vm.levelWon ? "trophy.fill" : "arrow.counterclockwise")
+                        .font(.system(size: 34, weight: .bold))
                         .foregroundColor(vm.levelWon ? .yellow : .orange)
-                    
-                    Text(vm.levelWon ? "Congratulations!" : "Try Again")
-                        .font(.title2.bold())
+                }
+                
+                VStack(spacing: 6) {
+                    Text(popupTitle)
+                        .font(.system(.title2, design: .rounded).bold())
                         .foregroundColor(.white)
-                }
-                
-                VStack(spacing: 4) {
-                    Text("\(vm.score)")
-                        .font(.system(size: 54, weight: .black, design: .rounded))
-                        .foregroundColor(vm.currentLevel.glowColor)
                     
-                    Text("Final Level Score")
-                        .font(.caption)
-                        .foregroundColor(.white.opacity(0.5))
+//                    Text(popupSubtitle)
+//                        .font(.system(.footnote, design: .rounded))
+//                        .foregroundColor(.white.opacity(0.55))
+//                        .multilineTextAlignment(.center)
+//                        .padding(.horizontal, 10)
                 }
                 
-                if !vm.levelWon && vm.currentLevel.unlockThreshold > 0 {
-                    Text("You need at least \(vm.currentLevel.unlockThreshold) points to unlock the next level mode.")
-                        .font(.caption)
-                        .foregroundColor(.white.opacity(0.6))
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal, 10)
-                }
-                
-                HStack(spacing: 16) {
-                    Button(action: { dismiss() }) {
-                        Text("Back")
-                            .font(.headline)
+                HStack(spacing: 10) {
+                    VStack(spacing: 2) {
+                        Text("\(vm.score)")
+                            .font(.system(size: 30, weight: .black, design: .rounded))
+                            .foregroundColor(vm.currentLevel.glowColor)
+                        Text("SCORE")
+                            .font(.system(size: 10, weight: .bold))
+                            .foregroundColor(.white.opacity(0.4))
+                            .tracking(1)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 14)
+                    .background(Color.white.opacity(0.06))
+                    .cornerRadius(16)
+                    
+                    VStack(spacing: 2) {
+                        Text("\(vm.currentLevelHighScore)")
+                            .font(.system(size: 30, weight: .black, design: .rounded))
                             .foregroundColor(.white)
+                        Text("BEST")
+                            .font(.system(size: 10, weight: .bold))
+                            .foregroundColor(.white.opacity(0.4))
+                            .tracking(1)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 14)
+                    .background(Color.white.opacity(0.06))
+                    .cornerRadius(16)
+                }
+                
+                HStack(spacing: 14) {
+                    Button(action: { dismiss() }) {
+                        Text("Exit")
+                            .font(.system(.headline, design: .rounded))
+                            .foregroundColor(.white.opacity(0.8))
                             .frame(maxWidth: .infinity)
-                            .frame(height: 48)
-                            .background(Color.white.opacity(0.15))
-                            .cornerRadius(14)
+                            .frame(height: 50)
+                            .background(Color.white.opacity(0.1))
+                            .cornerRadius(16)
                     }
                     
                     if vm.levelWon, let next = vm.currentLevel.nextLevel {
                         Button(action: { vm.startLevel(next) }) {
-                            Text("Next Level")
-                                .font(.headline)
-                                .foregroundColor(.black)
-                                .frame(maxWidth: .infinity)
-                                .frame(height: 48)
-                                .background(vm.currentLevel.glowColor)
-                                .cornerRadius(14)
+                            HStack(spacing: 6) {
+                                Text("Next Level")
+                                Image(systemName: "arrow.right")
+                            }
+                            .font(.system(.headline, design: .rounded).bold())
+                            .foregroundColor(.black)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 50)
+                            .background(
+                                LinearGradient(
+                                    colors: [vm.currentLevel.glowColor, vm.currentLevel.glowColor.opacity(0.7)],
+                                    startPoint: .leading, endPoint: .trailing
+                                )
+                            )
+                            .cornerRadius(16)
                         }
                     } else {
                         Button(action: { vm.startLevel(selectedLevel) }) {
-                            Text("Retry")
-                                .font(.headline)
-                                .foregroundColor(.black)
-                                .frame(maxWidth: .infinity)
-                                .frame(height: 48)
-                                .background(.white)
-                                .cornerRadius(14)
+                            HStack(spacing: 6) {
+                                Image(systemName: "arrow.counterclockwise")
+                                Text("Retry")
+                            }
+                            .font(.system(.headline, design: .rounded).bold())
+                            .foregroundColor(.black)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 50)
+                            .background(Color.white)
+                            .cornerRadius(16)
                         }
                     }
                 }
-                .padding(.top, 5)
             }
             .padding(28)
             .background(.ultraThinMaterial)
             .environment(\.colorScheme, .dark)
-            .cornerRadius(28)
+            .cornerRadius(30)
             .overlay(
-                RoundedRectangle(cornerRadius: 28)
-                    .stroke(Color.white.opacity(0.1), lineWidth: 1)
+                RoundedRectangle(cornerRadius: 30)
+                    .stroke(
+                        LinearGradient(
+                            colors: [.white.opacity(0.25), .white.opacity(0.05)],
+                            startPoint: .topLeading, endPoint: .bottomTrailing
+                        ),
+                        lineWidth: 1
+                    )
             )
-            .padding(.horizontal, 35)
-            .transition(.scale.combined(with: .opacity))
+            .padding(.horizontal, 32)
+            .transition(.asymmetric(
+                insertion: .scale(scale: 0.85).combined(with: .opacity),
+                removal: .scale(scale: 0.9).combined(with: .opacity)
+            ))
         }
     }
     .navigationBarBackButtonHidden(true)
@@ -370,3 +494,5 @@ var body: some View {
     }
 }
 }
+
+

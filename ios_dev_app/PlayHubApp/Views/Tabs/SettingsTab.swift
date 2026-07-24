@@ -34,11 +34,11 @@ struct SettingsTab: View {
         var message: String {
             switch self {
             case .all:
-                return "This will permanently erase your game session history"
+                return "Are you sure you want to erase your game history"
             case .lightItUp:
-                return "This will permanently erase  your Light It Up game records"
+                return "Are you sure you want to erase your Light It Up game history"
             case .quizRush:
-                return "This will permanently erase all your Quiz Rush game records"
+                return "Are you sure you want to erase all your Quiz Rush game history"
             case .tapFrenzy:
                 return "This will permanently erase your Tap Frenzy records"
             }
@@ -138,30 +138,34 @@ struct SettingsTab: View {
         resetTarget = target
         showResetAlert = true
     }
-    
-    private func executeReset(for target: ResetTarget) {
-        switch target {
-        case .all:
-            statsVM.clearStats()
-            for i in 0...3 {
-                UserDefaults.standard.removeObject(forKey: "lightItUp_highscore_level_\(i)")
-            }
-            UserDefaults.standard.removeObject(forKey: "lightItUpHighestScore")
-            
-        case .lightItUp:
-            for i in 0...3 {
-                UserDefaults.standard.removeObject(forKey: "lightItUp_highscore_level_\(i)")
-            }
-            UserDefaults.standard.removeObject(forKey: "lightItUpHighestScore")
-            
-        case .quizRush:
-            UserDefaults.standard.removeObject(forKey: "quizRushHighScore")
-            
-        case .tapFrenzy:
-            UserDefaults.standard.removeObject(forKey: "tapFrenzyHighScore")
-        }
         
-         resetTarget = nil
-    }
+    private func executeReset(for target: ResetTarget) {
+            switch target {
+            case .all:
+                statsVM.clearStats()
+                for i in 0...3 {
+                    UserDefaults.standard.removeObject(forKey: "lightItUp_highscore_level_\(i)")
+                }
+                UserDefaults.standard.removeObject(forKey: "lightItUpHighestScore")
+                
+            case .lightItUp:
+                statsVM.clearSessions(for: .lightItUp)
+                for i in 0...3 {
+                    UserDefaults.standard.removeObject(forKey: "lightItUp_highscore_level_\(i)")
+                }
+                UserDefaults.standard.removeObject(forKey: "lightItUpHighestScore")
+                
+            case .quizRush:
+                statsVM.clearSessions(for: .quizRush)
+                UserDefaults.standard.removeObject(forKey: "quizRushHighScore")
+                
+            case .tapFrenzy:
+                statsVM.clearSessions(for: .tapFrenzy)
+                UserDefaults.standard.removeObject(forKey: "tapFrenzyHighScore")
+            }
+            
+             resetTarget = nil
+        }
+    
 }
 
