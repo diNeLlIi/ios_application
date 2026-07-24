@@ -156,9 +156,9 @@ struct LevelProgressBar: View {
     let color: Color
     let subtitle: String
     
-    private var fraction: Double {
+    private var fraction: CGFloat {
         guard target > 0 else { return 0 }
-        return min(Double(current) / Double(target), 1.0)
+        return CGFloat(min(Double(current) / Double(target), 1.0))
     }
     
     var body: some View {
@@ -167,6 +167,7 @@ struct LevelProgressBar: View {
                 ZStack(alignment: .leading) {
                     Capsule()
                         .fill(Color.white.opacity(0.1))
+                        .frame(height: 10)
                     
                     Capsule()
                         .fill(
@@ -175,10 +176,16 @@ struct LevelProgressBar: View {
                                 startPoint: .leading, endPoint: .trailing
                             )
                         )
-                        .frame(width: geo.size.width * CGFloat(fraction))
+      
+                        .frame(
+                            width: max(fraction * geo.size.width, current > 0 ? 8 : 0),
+                            height: 10
+                        )
                         .shadow(color: color.opacity(0.6), radius: 5)
                         .animation(.easeOut(duration: 0.2), value: fraction)
                 }
+             
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
             .frame(height: 10)
             
@@ -186,6 +193,7 @@ struct LevelProgressBar: View {
                 .font(.system(size: 11, weight: .semibold, design: .rounded))
                 .foregroundColor(.white.opacity(0.55))
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
 
@@ -202,7 +210,7 @@ let selectedLevel: GameLevel
 private var progressSubtitle: String {
     let target = vm.currentLevel.progressTarget
     if vm.currentLevel.unlockThreshold > 0 {
-        return "\(vm.score) / \(target) taps to clear"
+        return "\(vm.score)"
     } else {
         return "\(vm.score) / \(target) taps · final level"
     }
