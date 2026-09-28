@@ -117,3 +117,46 @@ Model (struct / enum)
 - **UserNotifications** — daily challenge reminders
 - **Charts** (SwiftUI) — stats progress chart
 - **Open Trivia DB** — trivia questions (external API)
+
+
+---
+
+## Features
+
+- **Tab bar shell:** Play, Stats, Map and Settings tabs, dark theme.
+- **Tap Frenzy:** 10-second reaction game with a shrinking, moving target.
+- **Light It Up:** reflex grid game with 4 levels, 3 lives per level and a level progress bar.
+- **Quiz Rush:** live trivia from the Open Trivia DB API, with category and difficulty selection, a per-question timer ring, streak bonuses, difficulty-based scoring and confetti on the results screen.
+- **Stats (Swift Charts):** per-game overview cards, bar chart of recent scores and a history list.
+- **Map of Games (MapKit + Core Location):** every finished game is geotagged. Sessions at the same place are grouped into one pin, with a detail sheet and a game-mode filter.
+- **Daily Challenge notifications:** a repeating local notification at a time the user picks, controlled by a toggle and time picker in Settings.
+- **Share Your Score:** `ShareLink` on the results screens.
+- **Settings:** reset history for one game or clear everything, with a confirmation prompt.
+- **Persistence:** sessions saved as JSON in `UserDefaults`; per-game high scores stored with `@AppStorage`.
+
+---
+
+## Known limitations
+
+- **Storage:** `UserDefaults` re-encodes the whole session array on every save. This is fine at this scale, but Core Data or SwiftData would suit a larger history.
+- **Quiz Rush needs internet.** There is no offline question bank, and the free Open Trivia DB API is rate limited, so quick repeated requests can fail.
+- **Notifications:** the Daily Challenge is a reminder only and does not open a specific challenge. Scheduling replaces all pending notifications, so only one can be scheduled at a time.
+- **Location:** map pins depend on location permission and a location fix.
+- **Deployment target is iOS 26.2**, so it needs a recent Xcode.
+- **Dark theme only** and designed for iPhone in portrait.
+- **No unit or UI tests** in the project.
+- **Structural inconsistencies:**
+  - `ViewModels/` is a flat folder while `Models/` and `Views/` are nested by feature.
+  - ViewModel class names are inconsistent (for example `TapFrenzyVM` inside `TapFrenzyViewModel.swift`).
+  - `GamesSessionCoordinate.swift` has a naming typo and sits under `Extensions/`.
+  - `TimerRing` lives in `QuizRush/Components/` instead of a shared folder.
+
+---
+
+## Reflection
+
+Building PlayHub taught me how much MVVM helps once an app has more than one screen sharing data. Keeping timers and scoring in ViewModels, and putting session saving in one shared `StatusGame` object, meant Stats and Map updated without any extra wiring.
+
+The hardest bugs were about timing. Saving a session inside an alert's OK action read a score that `resetGame()` had already zeroed, so I moved the save to `.onChange(of: vm.isGameOver)`. `Timer.publish(...).autoconnect()` also fires straight away, so every tick needed a guard on the game state. `GeometryReader` collapsed inside an `HStack` until I gave it an explicit frame.
+
+If I had more time I would move persistence to SwiftData, add unit tests for the scoring and streak logic, and tidy the folder structure and ViewModel naming listed above.
